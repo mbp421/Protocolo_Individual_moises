@@ -126,3 +126,89 @@ fun jugarAhorcado() {
     println("No te dio el coco. La palabra era: $palabraSecreta")
 }
 
+
+// Segunta parte: version con codigos nativos
+
+fun pilaNativaDemo() {
+    val pila = ArrayDeque<Char>()
+    pila.addLast('a')
+    pila.addLast('b')
+    pila.addLast('c')
+    println("\nPila nativa: $pila")
+    println("Pop (removeLast): ${pila.removeLast()}")
+    println("Después: $pila")
+}
+
+fun colaNativaDemo() {
+    val cola = ArrayDeque<String>()
+    cola.addLast("Jugador 1")
+    cola.addLast("Jugador 2")
+    println("\nCola nativa: $cola")
+    println("Dequeue (removeFirst): ${cola.removeFirst()}")
+    println("Después: $cola")
+}
+
+
+
+// ALGORITMOS (SIN CAMBIOS)
+
+
+fun busquedaLineal(lista: List<Int>, clave: Int): Int {
+    for (i in lista.indices) if (lista[i] == clave) return i
+    return -1
+}
+
+fun busquedaBinaria(lista: List<Int>, clave: Int): Int {
+    var inicio = 0
+    var fin = lista.size - 1
+    while (inicio <= fin) {
+        val medio = (inicio + fin) / 2
+        when {
+            lista[medio] == clave -> return medio
+            lista[medio] < clave -> inicio = medio + 1
+            else -> fin = medio - 1
+        }
+    }
+    return -1
+}
+
+fun burbuja(lista: MutableList<Int>): List<Int> {
+    val n = lista.size
+    for (i in 0 until n - 1) {
+        for (j in 0 until n - i - 1) {
+            if (lista[j] > lista[j + 1]) {
+                val temp = lista[j]
+                lista[j] = lista[j + 1]
+                lista[j + 1] = temp
+            }
+        }
+    }
+    return lista
+}
+
+fun insercion(lista: MutableList<Int>): List<Int> {
+    for (i in 1 until lista.size) {
+        val clave = lista[i]
+        var j = i - 1
+        while (j >= 0 && lista[j] > clave) {
+            lista[j + 1] = lista[j]
+            j--
+        }
+        lista[j + 1] = clave
+    }
+    return lista
+}
+
+
+
+// Ejecutar el codigo completo 
+
+
+
+fun main() {
+    jugarAhorcado()
+
+    println("\n=== VERSIONES NATIVAS ===")
+    pilaNativaDemo()
+    colaNativaDemo()
+}
