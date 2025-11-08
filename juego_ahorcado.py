@@ -1,9 +1,7 @@
 import random
 from collections import deque
 
-# ---------------------
-# PARTE A: IMPLEMENTACIÓN MANUAL
-# ---------------------
+# Primer punto: IMPLEMENTACIÓN MANUAL
 
 class EmptyStackException(Exception):
     pass
@@ -65,9 +63,9 @@ class QueueManual:
         self.items = []
 
 
-# ---------------------
-# JUEGO DEL AHORCADO (USANDO PILA Y COLA)
-# ---------------------
+
+# Imporporacion de colas y pilas al juego ahorcado
+
 
 def obtener_palabra_aleatoria():
     palabras = ["materia", "comida", "agua", "gato", "felicidad", "saltar", "futbol"]
@@ -98,7 +96,7 @@ def jugar_ahorcado():
 
         print(f"\nTurno de: {jugador_actual}")
         mostrar_tablero(palabra_secreta, letras_adivinadas)
-        letra = input("Escribe una letra, o escribe UNDO para deshacer última letra: ").lower()
+        letra = input("Empieza cachon! Escribe una letra, o escribe UNDO para deshacer última letra: ").lower()
 
         if letra == "undo":
             try:
@@ -110,7 +108,7 @@ def jugar_ahorcado():
             continue
 
         if letra in letras_adivinadas:
-            print("Ya habías ingresado esa letra.")
+            print("Tu si eres cachon, ya habías ingresado esa letra.")
             continue
 
         pila_undo.push(letra)
@@ -118,11 +116,38 @@ def jugar_ahorcado():
         if letra in palabra_secreta:
             letras_adivinadas.append(letra)
             if set(palabra_secreta).issubset(set(letras_adivinadas)):
-                print(f"¡Ganaste! La palabra era: {palabra_secreta}")
+                print(f"¡Tu si sirbes ganaste! La palabra era: {palabra_secreta}")
                 return
         else:
             intentos_restantes -= 1
-            print(f"Fallaste. Intentos restantes: {intentos_restantes}")
+            print(f"Esa no era cachon. Intentos restantes: {intentos_restantes}")
 
-    print(f"Perdiste. La palabra era: {palabra_secreta}")
+    print(f"No te dio el coco. La palabra era: {palabra_secreta}")
 
+
+
+# Segunta parte: version con codigos nativos
+
+def pila_nativa():
+    pila = []  # list como pila
+    pila.append("a")
+    pila.append("b")
+    pila.append("c")
+    print("\nPila nativa:", pila)
+    print("Pop:", pila.pop())
+    print("Después:", pila)
+
+def cola_nativa():
+    cola = deque()  # deque como cola
+    cola.append("Jugador 1")
+    cola.append("Jugador 2")
+    print("\nCola nativa:", cola)
+    print("Dequeue:", cola.popleft())
+    print("Después:", cola)
+
+
+# Ejecutar el codigo completo 
+if __name__ == "__main__":
+    jugar_ahorcado()
+    pila_nativa()
+    cola_nativa()
