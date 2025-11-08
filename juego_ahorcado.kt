@@ -1,6 +1,59 @@
 import kotlin.random.Random
 
-// Juego del ahorcado
+// # Primer punto: implementacion de clases manual 
+
+class EmptyStackException(message: String) : Exception(message)
+
+class StackManual<T> {
+    private val items = mutableListOf<T>()
+
+    fun push(value: T) = items.add(value)
+
+    fun pop(): T {
+        if (isEmpty()) throw EmptyStackException("La pila está vacía (no hay jugadas para deshacer).")
+        return items.removeAt(items.size - 1)
+    }
+
+    fun peek(): T {
+        if (isEmpty()) throw EmptyStackException("La pila está vacía.")
+        return items.last()
+    }
+
+    fun isEmpty() = items.isEmpty()
+
+    fun size() = items.size
+
+    fun clear() = items.clear()
+}
+
+
+class EmptyQueueException(message: String) : Exception(message)
+
+class QueueManual<T> {
+    private val items = mutableListOf<T>()
+
+    fun enqueue(value: T) = items.add(value)
+
+    fun dequeue(): T {
+        if (isEmpty()) throw EmptyQueueException("La cola está vacía.")
+        return items.removeAt(0)
+    }
+
+    fun front(): T {
+        if (isEmpty()) throw EmptyQueueException("La cola está vacía.")
+        return items[0]
+    }
+
+    fun isEmpty() = items.isEmpty()
+
+    fun size() = items.size
+
+    fun clear() = items.clear()
+}
+
+
+// Imporporacion de colas y pilas al juego ahorcado
+
 
 fun obtenerPalabraAleatoria(): String {
     val palabras = listOf("materia", "comida", "agua", "gato", "felicidad", "saltar", "futbol")
@@ -9,9 +62,7 @@ fun obtenerPalabraAleatoria(): String {
 
 fun mostrarTablero(palabraSecreta: String, letrasAdivinadas: List<Char>) {
     val tablero = buildString {
-        for (letra in palabraSecreta) {
-            append(if (letra in letrasAdivinadas) letra else '_')
-        }
+        for (letra in palabraSecreta) append(if (letra in letrasAdivinadas) letra else '_')
     }
     println(tablero)
 }
@@ -19,112 +70,59 @@ fun mostrarTablero(palabraSecreta: String, letrasAdivinadas: List<Char>) {
 fun jugarAhorcado() {
     val palabraSecreta = obtenerPalabraAleatoria()
     val letrasAdivinadas = mutableListOf<Char>()
+    val pilaUndo = StackManual<Char>()        // Pila para deshacer jugadas
+    val colaJugadores = QueueManual<String>() // Cola para turnos
+    colaJugadores.enqueue("Jugador 1")
+    colaJugadores.enqueue("Jugador 2")
+
     var intentosRestantes = 10
 
-    println("\n JUEGO DEL AHORCADO ")
+    println("\n=== JUEGO DEL AHORCADO ===")
+    println("Comando adicional: escribe UNDO para deshacer la última letra ingresada.")
+
     while (intentosRestantes > 0) {
+        val jugadorActual = colaJugadores.dequeue()
+        colaJugadores.enqueue(jugadorActual)
+
+        println("\nTurno de: $jugadorActual")
         mostrarTablero(palabraSecreta, letrasAdivinadas)
-        print("Introduce una letra: ")
+
+        print("Pila pues! introduce una letra (o UNDO): ")
         val input = readLine()?.lowercase() ?: ""
         if (input.isEmpty()) continue
+
+        if (input == "undo") {
+            try {
+                val ultima = pilaUndo.pop()
+                letrasAdivinadas.remove(ultima)
+                println("Se deshizo la letra: $ultima")
+            } catch (e: Exception) {
+                println(e.message)
+            }
+            continue
+        }
+
         val letra = input[0]
 
         if (letra in letrasAdivinadas) {
-            println("Ya has ingresado esta letra cachon, intenta con otraa.")
+            println("Ya habías ingresado esta letra cachon!.")
             continue
         }
+
+        pilaUndo.push(letra)
 
         if (palabraSecreta.contains(letra)) {
             letrasAdivinadas.add(letra)
             if (palabraSecreta.toSet().all { it in letrasAdivinadas }) {
-                println("¡Felicidades sirves pa algo! Adivinaste la palabra: $palabraSecreta")
-                break
+                println("¡Tu si sirves Ganaste! La palabra era: $palabraSecreta")
+                return
             }
         } else {
             intentosRestantes--
-            println("Letra incorrecta cachon. Te quedan $intentosRestantes intentos.")
+            println("Esa no era cachon. Te quedan $intentosRestantes intentos.")
         }
     }
 
-    if (intentosRestantes == 0) {
-        println("Has perdido. No te dio el coco para adivinar esta palabra: $palabraSecreta")
-    }
+    println("No te dio el coco. La palabra era: $palabraSecreta")
 }
 
-// Algoritmos de busqueda y ordenamiento
-
-fun busquedaLineal(lista: List<Int>, clave: Int): Int {
-    for (i in lista.indices) {
-        if (lista[i] == clave) return i
-    }
-    return -1
-}
-
-fun busquedaBinaria(lista: List<Int>, clave: Int): Int {
-    var inicio = 0
-    var fin = lista.size - 1
-    while (inicio <= fin) {
-        val medio = (inicio + fin) / 2
-        when {
-            lista[medio] == clave -> return medio
-            lista[medio] < clave -> inicio = medio + 1
-            else -> fin = medio - 1
-        }
-    }
-    return -1
-}
-
-fun burbuja(lista: MutableList<Int>): List<Int> {
-    val n = lista.size
-    for (i in 0 until n - 1) {
-        for (j in 0 until n - i - 1) {
-            if (lista[j] > lista[j + 1]) {
-                val temp = lista[j]
-                lista[j] = lista[j + 1]
-                lista[j + 1] = temp
-            }
-        }
-    }
-    return lista
-}
-
-fun insercion(lista: MutableList<Int>): List<Int> {
-    for (i in 1 until lista.size) {
-        val clave = lista[i]
-        var j = i - 1
-        while (j >= 0 && lista[j] > clave) {
-            lista[j + 1] = lista[j]
-            j--
-        }
-        lista[j + 1] = clave
-    }
-    return lista
-}
-
-// Programa Principal
-
-fun main() {
-    // 1. Ejecutar juego del ahorcado
-    jugarAhorcado()
-
-    // 2. Probar algoritmos
-    val datos = listOf(5, 3, 8, 1, 2)
-    println("\nALGORITMOS DE BUSQUEDA Y ORDENAMIENTO ===")
-    println("Lista original: $datos")
-    println("Ordenamiento burbuja: ${burbuja(datos.toMutableList())}")
-    println("Ordenamiento inserción: ${insercion(datos.toMutableList())}")
-
-    val clave = 3
-    val posLineal = busquedaLineal(datos, clave)
-    println("Busqueda Lineal ($clave): posicion $posLineal")
-
-    val ordenados = datos.sorted()
-    val posBinaria = busquedaBinaria(ordenados, clave)
-    println("Busqueda Binaria ($clave): posición $posBinaria en $ordenados")
-
-    println("\nMetodos nativos de Kotlin ")
-    val ordenadosNativo = datos.sorted()
-    println("Ordenados con sorted(): $ordenadosNativo")
-    val posNativo = ordenadosNativo.binarySearch(clave)
-    println("Posicion de $clave con binarySearch: $posNativo en $ordenadosNativo")
-}
